@@ -8,6 +8,7 @@ const Home = () => {
   const [viewMode, setViewMode] = useState("grid");
   const [sortBy, setSortBy] = useState("market_cap_rank");
   const [filteredList, setFilteredList] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetchCryptoData();
@@ -15,7 +16,7 @@ const Home = () => {
 
   useEffect(() => {
     filterAndSort();
-  }, [sortBy, cryptoList]);
+  }, [sortBy, cryptoList,searchQuery]);
 
 
   const fetchCryptoData = async () => {
@@ -32,8 +33,12 @@ const Home = () => {
   }
 
   const filterAndSort = () => {
-    const filtered = [...cryptoList]; 
-    
+    const filtered = cryptoList.filter(
+      (crypto) =>
+        crypto.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        crypto.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
 
     filtered.sort((a, b) => {
       switch (sortBy) {
@@ -57,11 +62,28 @@ const Home = () => {
 
   return (
     <div className='app'>
+      <header>
+        <div className='header-content'>
+          <div className='logo-section'>
+            <h1>Crypto Tracker</h1>
+            <p>Real-Time Cryptocurrency Prices and Market Data</p>
+          </div>
+
+          <div className='search-section'>
+            <input type="text"
+              placeholder='search cryptos'
+              className='search-input'
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </div>
+      </header>
       <div className='controls'>
         <div className='filter-group'>
           <label>Sort by:</label>
 
-          <select value={sortBy} onChange={(e)=>{setSortBy(e.target.value)}} >
+          <select value={sortBy} onChange={(e) => { setSortBy(e.target.value) }} >
             <option value="market_cap_rank">Rank</option>
             <option value="name">Name</option>
             <option value="price">Price (Low to High)</option>
@@ -76,8 +98,6 @@ const Home = () => {
           </div>
         </div>
       </div>
-
-
 
       {isLoading ?
         (<div className='loading'>
